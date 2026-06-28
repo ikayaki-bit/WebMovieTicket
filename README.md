@@ -62,3 +62,14 @@ Connects users, showtimes, and seats to process reservations.
    uv venv
    .venv\Scripts\Activate.ps1
    uv sync
+
+## API Documentation & URL Routing
+
+The table below outlines the initial view functions, callable URLs, arguments, and return values implemented to represent the basic user actions.
+
+| User Action / Workflow | URL Path | View Function | Arguments | Return Value | Notes (HTMX & Architecture Role) |
+| :--- | :--- | :--- | :--- | :--- | :--- |
+| Open Application (Home Page) | `/` | `FirstApp.views.home` | `request` | `HttpResponse` (HTML Frame) | Renders the initial single-page interface structure. |
+| Select Movie / Date | `/movies/` | `FirstApp.views.movie_list` | `request` | `JsonResponse` (JSON Data) | Returns available movies. Handles asynchronous requests to filter show options. |
+| Click Showtime (Seat Map) | `/seats/` | `FirstApp.views.seat_map` | `request` | `HttpResponse` (HTML Fragment) | Dynamically renders the interactive seat map snippet using HTMX. |
+| Click "OK" (Final Booking) | `/booking/create/` | `FirstApp.views.create_booking` | `request` | `HttpResponse` (HTML Snippet) | Validates seat vacancy, processes reservation, and returns a popup status notification. |
