@@ -6,59 +6,11 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Movie Ticket System</title>
     <script src="https://unpkg.com/htmx.org@1.9.10"></script>
-    <style>
-        /* パネルを横に並べて折り返すレイアウト */
-        .panel-container {
-            display: flex;
-            flex-wrap: wrap; 
-            gap: 12px;
-            margin-top: 10px;
-        }
-
-        /* 本来の丸いラジオボタンを非表示にする */
-        .panel-item input[type="radio"] {
-            display: none; 
-        }
-
-        /* 選択肢を四角いボタン風に見せるスタイル */
-        .panel-label {
-            display: block;
-            padding: 12px 20px;
-            background-color: #ffffff;
-            border: 2px solid #ced4da;
-            border-radius: 8px;
-            cursor: pointer;
-            text-align: center;
-            transition: 0.2s;
-            min-width: 130px;
-        }
-
-        .panel-label:hover {
-            background-color: #f8f9fa;
-        }
-
-        /* 選択された状態のパネルの色を変える */
-        .panel-item input[type="radio"]:checked + .panel-label {
-            background-color: #e6f2ff;
-            border-color: #007bff;
-            color: #0056b3;
-            font-weight: bold;
-            box-shadow: 0 2px 4px rgba(0,123,255,0.2);
-        }
-
-        /* 映画の分分数などの補足情報 */
-        .meta-info {
-            display: block;
-            font-size: 0.85em;
-            color: #6c757d;
-            margin-top: 4px;
-            font-weight: normal;
-        }
-    </style>
+    <link rel="stylesheet" href="{% static 'FirstApp/style.css' %}">
 </head>
 <body>
 
-    <!-- ログイン状態に応じたナビゲーション表示 -->
+<!-- Navigation display based on authentication status -->
     <div style="display: flex; justify-content: flex-end; align-items: center; padding: 10px 20px; background-color: #f8f9fa; border-bottom: 1px solid #dee2e6; margin-bottom: 20px;">
         {% if user.is_authenticated %}
             <span style="margin-right: 15px; font-weight: bold;">{{ user.username }}</span>
@@ -77,7 +29,7 @@
     <main style="padding: 20px; max-width: 1000px; margin: 0 auto;">
         <h1>Movie Ticket Reservation</h1>
 
-        <!-- HTMXにより、クリックされるたびにこの中身が自動更新されます -->
+        <!-- Content auto-updates via HTMX on click/change -->
         <div id="booking-container">
             <form method="GET" action="{% url 'movie-list' %}"
                   hx-get="{% url 'movie-list' %}"
@@ -85,13 +37,13 @@
                   hx-select="#booking-container"
                   hx-trigger="change">
 
-                <!-- 1. 日付選択（最初から並べて表示） -->
+                <!-- 1. Date selection (displayed side-by-side from the start) -->
                 <div style="margin-bottom: 30px;">
                     <h3>1. Select Date</h3>
                     <div class="panel-container">
                         {% for d in available_dates %}
                             <div class="panel-item">
-                                <!-- idとfor属性を紐づけて、ラベルクリックで選択できるようにする -->
+                                <!-- Link id and for attributes so options can be selected by clicking the label -->
                                 <input type="radio" id="date_{{ d.date_str }}" name="date" value="{{ d.date_str }}" {% if selected_date == d.date_str %}checked{% endif %}>
                                 <label class="panel-label" for="date_{{ d.date_str }}">
                                     {{ d.display_str }}
@@ -101,7 +53,7 @@
                     </div>
                 </div>
 
-                <!-- 2. 映画選択（最初から並べて表示） -->
+                <!-- 2. Movie selection (displayed side-by-side from the start) -->
                 <div style="margin-bottom: 30px;">
                     <h3>2. Select Movie</h3>
                     <div class="panel-container">
@@ -117,13 +69,13 @@
                     </div>
                 </div>
 
-                <!-- 選択解除用のリセットボタン -->
+                <!-- Reset button for clearing selection -->
                 <a href="{% url 'movie-list' %}" style="display:inline-block; padding:10px 20px; background:#6c757d; color:white; text-decoration:none; border-radius:5px;">Reset</a>
             </form>
 
             <hr style="margin: 40px 0;">
 
-            <!-- 結果表示エリア -->
+            <!-- Result display area -->
             <div id="result-area">
                 {% if selected_movie and selected_date %}
                     <div style="background-color: #e9ecef; padding: 20px; border-radius: 8px; margin-bottom: 20px;">
@@ -133,7 +85,7 @@
                         <p><strong>Date:</strong> {{ selected_date }}</p>
                     </div>
                     
-                    <!-- 座席マップ（seat_map_fragment.htmlを読み込み） -->
+                    <!-- Seating map (loads seat_map_fragment.html) -->
                     {% include 'FirstApp/seat_map_fragment.html' %}
                 {% else %}
                     <p style="color: #d9534f; font-weight: bold; font-size: 1em;">

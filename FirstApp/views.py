@@ -1,11 +1,11 @@
 import datetime
 from django.shortcuts import render, redirect, get_object_or_404
 from django.http import HttpResponse
-from django.contrib.auth.forms import UserCreationForm, AuthenticationForm  # ← ここに AuthenticationForm を追加
+from django.contrib.auth.forms import UserCreationForm, AuthenticationForm  # ← Add AuthenticationForm here
 from django.contrib.auth import login as auth_login, logout as auth_logout
 from .models import User, Movie, Showtime, Seat, Booking
 
-# --- 10作品のデータ（曜日指定: 月=0, 火=1, 水=2, 木=3, 金=4, 土=5, 日=6） ---
+# --- 10 movie data (weekday specification: Mon=0, Tue=1, Wed=2, Thu=3, Fri=4, Sat=5, Sun=6) ---
 MOCK_MOVIES = [
     {"id": 1, "title": "Inception", "duration": 148, "hall": "hall 1", "weekdays": [0, 3]},
     {"id": 2, "title": "The Dark Knight", "duration": 152, "hall": "hall 1", "weekdays": [1, 4]},
@@ -20,7 +20,7 @@ MOCK_MOVIES = [
 ]
 
 def get_14_days():
-    """本日から14日間の日付リストを生成"""
+    """Generate a list of dates for the next 14 days starting today"""
     today = datetime.date.today()
     days = []
     weekdays_ja = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"]
@@ -34,11 +34,11 @@ def get_14_days():
     return days
 
 def home(request):
-    """初期表示はmovie_listと同じ処理に流す"""
+    """Route initial display to the same processing as movie_list"""
     return movie_list(request)
 
 def movie_list(request):
-    """日付と映画の相互フィルタリングを行う"""
+    """Perform mutual filtering of dates and movies"""
     selected_movie_id = request.GET.get('movie')
     selected_date_str = request.GET.get('date')
 
@@ -58,7 +58,7 @@ def movie_list(request):
         available_movies = [m for m in MOCK_MOVIES if selected_date_obj['weekday'] in m['weekdays']]
         available_dates = [d for d in all_dates if selected_movie['weekdays'].count(d['weekday']) > 0]
 
-    # 該当するShowtimeの取得
+    # Retrieve the corresponding Showtime
     target_showtime = None
     booked_seat_ids = []
     
@@ -84,7 +84,7 @@ def movie_list(request):
         if target_showtime:
             booked_seat_ids = list(Booking.objects.filter(showtime=target_showtime).values_list('seat_id', flat=True))
 
-    # 各座席のID、番号、予約済みステータスをまとめたリストを作成
+    # Create a list summarizing each seat's ID, number, and booking status
     seats_data = []
     has_available_seat = False
 
@@ -121,7 +121,7 @@ def seat_map(request):
     return render(request, 'FirstApp/seat_map_fragment.html')
 
 def signup_view(request):
-    """ユーザー登録"""
+    """User registration"""
     if request.method == 'POST':
         form = UserCreationForm(request.POST)
         if form.is_valid():
@@ -133,7 +133,7 @@ def signup_view(request):
     return render(request, 'FirstApp/signup.html', {'form': form})
 
 def login_view(request):
-    """ログイン"""
+    """Login"""
     if request.method == 'POST':
         form = AuthenticationForm(request, data=request.POST)
         if form.is_valid():
@@ -145,7 +145,7 @@ def login_view(request):
     return render(request, 'FirstApp/login.html', {'form': form})
 
 def logout_view(request):
-    """ログアウト"""
+    """Logout"""
     auth_logout(request)
     return redirect('home')
 
@@ -157,7 +157,7 @@ def create_booking(request):
         showtime = get_object_or_404(Showtime, id=showtime_id)
         seat = get_object_or_404(Seat, id=seat_id)
 
-        # ログイン済み、未ログインに関わらず、FirstApp.models.User のインスタンスを取得・作成する
+        # Get or create an instance of FirstApp.models.User regardless of authentication status
         if request.user.is_authenticated:
             user_name = request.user.username
         else:

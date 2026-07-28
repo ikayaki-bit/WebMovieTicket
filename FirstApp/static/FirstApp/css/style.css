@@ -1,3 +1,51 @@
+/* Responsive panel layout with flex-wrap */
+.panel-container {
+    display: flex;
+    flex-wrap: wrap; 
+    gap: 12px;
+    margin-top: 10px;
+}
+
+/* Hide original radio buttons */
+.panel-item input[type="radio"] {
+    display: none; 
+}
+
+/* Style options to look like square buttons */
+.panel-label {
+    display: block;
+    padding: 12px 20px;
+    background-color: #ffffff;
+    border: 2px solid #ced4da;
+    border-radius: 8px;
+    cursor: pointer;
+    text-align: center;
+    transition: 0.2s;
+    min-width: 130px;
+}
+
+.panel-label:hover {
+    background-color: #f8f9fa;
+}
+
+/* Change panel color when selected */
+.panel-item input[type="radio"]:checked + .panel-label {
+    background-color: #e6f2ff;
+    border-color: #007bff;
+    color: #0056b3;
+    font-weight: bold;
+    box-shadow: 0 2px 4px rgba(0,123,255,0.2);
+}
+
+/* Supplementary information such as movie duration */
+.meta-info {
+    display: block;
+    font-size: 0.85em;
+    color: #6c757d;
+    margin-top: 4px;
+    font-weight: normal;
+}
+
 /*Basic stale and reset*/
 body {
     font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;

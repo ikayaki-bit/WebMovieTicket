@@ -2,7 +2,7 @@
     <h3 style='text-align: center; margin-top: 0;'>Select Your Seat</h3>
     <p style='text-align: center; color: gray; font-size: 0.9em;'>Click a seat to select.</p>
     
-    <!-- 満席時の通知メッセージ -->
+    <!-- Sold out notification message -->
     {% if is_sold_out %}
         <div style="background-color: #f8d7da; color: #721c24; padding: 15px; border-radius: 6px; text-align: center; margin-bottom: 20px; border: 1px solid #f5c6cb;">
             <h4 style="margin: 0 0 5px 0;">Sold Out</h4>
@@ -10,22 +10,22 @@
         </div>
     {% endif %}
 
-    <!-- スクリーン -->
+    <!-- Screen -->
     <div style='width: 100%; background-color: #ffffff; color: black; text-align: center; padding: 8px; margin-bottom: 25px; border-radius: 4px; font-weight: bold; letter-spacing: 3px; box-shadow: 0 4px 6px rgba(0,0,0,0.1);'>
         SCREEN
     </div>
 
-    <!-- グリッドエリア -->
+    <!-- Grid area -->
     <div class='seat-grid' style='--col-count: {{ cols|length }};'>
         {% for seat in seats_data %}
             {% if seat.is_booked %}
-                <!-- 予約済み座席（灰色・クリック不可） -->
+                <!-- Booked seat (gray, non-clickable) -->
                 <button type='button' disabled
                         style='background-color: #6c757d; color: white; width: 60px; height: 50px; display: flex; align-items: center; justify-content: center; border: 3px solid transparent; border-radius: 0; cursor: not-allowed; opacity: 0.6; font-weight: bold; box-sizing: border-box;'>
                     {{ seat.number }}
                 </button>
             {% else %}
-                <!-- 選択可能な座席 -->
+                <!-- Available seat -->
                 <button type='button' 
                         class='seat-btn' 
                         onclick='selectSeat(this, "{{ seat.id }}", "{{ seat.number }}")' 
@@ -36,7 +36,7 @@
         {% endfor %}
     </div>
 
-    <!-- 予約確定フォーム（HTMX対応） -->
+    <!-- Booking confirmation form (HTMX enabled) -->
     {% if target_showtime and not is_sold_out %}
     <form hx-post="{% url 'create-booking' %}" 
           hx-target="#result-area" 
@@ -50,12 +50,12 @@
         </p>
         
         {% if user.is_authenticated %}
-            <!-- ログイン中の場合は名前入力を省略 -->
+            <!-- Skip name input if logged in -->
             <p style="margin-bottom: 15px; font-weight: bold; color: #333;">
                 Logged in as: <span style="color: #007bff;">{{ user.username }}</span>
             </p>
         {% else %}
-            <!-- 未ログインの場合は名前入力欄を表示 -->
+            <!-- Show name input field if not logged in -->
             <div style="margin-bottom: 15px;">
                 <label for="user_name" style="font-weight: bold; margin-right: 10px;">Your Name:</label>
                 <input type="text" id="user_name" name="user_name" required 
@@ -64,7 +64,7 @@
             </div>
         {% endif %}
 
-        <!-- OKボタン（座席選択前は無効化） -->
+        <!-- OK button (disabled before seat selection) -->
         <button type="submit" id="book-btn" disabled 
                 style="padding: 10px 25px; background-color: #007bff; color: white; border: none; border-radius: 4px; font-weight: bold; cursor: not-allowed; opacity: 0.5;">
             OK
@@ -84,19 +84,19 @@
 
 <script>
     function selectSeat(button, seatId, seatNumber) {
-        // すべての座席ボタンの枠線を「透明」に戻す
+        // Reset all seat button borders to transparent
         document.querySelectorAll('.seat-btn').forEach(btn => {
             btn.style.border = '3px solid transparent';
         });
         
-        // クリックされたボタンの枠線を青色にする
+        // Set the clicked button border to blue
         button.style.border = '3px solid #007bff';
         
-        // 画面上の表示および隠しフィールドを更新
+        // Update display and hidden fields
         document.getElementById('selected-seat-display').innerText = seatNumber;
         document.getElementById('selected-seat-id').value = seatId;
         
-        // OKボタンを有効化
+        // Enable the OK button
         const bookBtn = document.getElementById('book-btn');
         if (bookBtn) {
             bookBtn.disabled = false;
