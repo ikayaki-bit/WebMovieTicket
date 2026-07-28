@@ -1,0 +1,23 @@
+<form method="GET" action="{% url 'movie-list' %}" class="mb-4">
+    <label for="movie">Movie:</label>
+    <select name="movie" id="movie">
+        <option value="">-- Select a movie--</option>
+
+        {% for movie in movies %}
+            <option value="{{ movie.movie_id }}">{{ movie.title }}</option>
+        {% endfor %}
+        
+    </select>
+
+    <label for="date">Date:</label>
+    <input type="date" name="date" id="date">
+
+    <button type="submit">Filter Options</button>
+</form>
+
+{% if selected_movie %}
+    <h3>Selected Filter Results:</h3>
+    <p>Movie Title: {{ selected_movie.title }}</p>
+    <p>Duration: {{ selected_movie.duration }} minutes</p>
+    <p>Date: {{ selected_date }}</p>
+{% endif %}

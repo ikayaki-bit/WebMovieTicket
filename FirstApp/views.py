@@ -4,19 +4,39 @@ from django.http import HttpResponse, JsonResponse
 # 1. Main Home Page (Single-page interface)
 def home(request):
     """Render the main single-page interface for the booking system."""
-    # In a real app, this will render a full HTML template.
-    return HttpResponse("<h1>Welcome to Movie Ticket Booking System</h1><p>Select a movie to start.</p>")
+    return render(request, 'FirstApp/home.html')
 
 # 2. Step 1: Get Movies & Dates (Mock List)
 def movie_list(request):
-    """Return a list of available movies for selection."""
-    # Dummy data based on the Movies Table specification
+    """Return a mock list of movies and available dates based on user selection."""
+    selected_movie = request.GET.get('movie')
+    selected_date = request.GET.get('date')
+
+    # data based on the Movies Table specification
     mock_movies = [
         {"movie_id": 1, "title": "Inception", "duration": 148},
         {"movie_id": 2, "title": "Interstellar", "duration": 169},
         {"movie_id": 3, "title": "The Dark Knight", "duration": 152},
     ]
-    return JsonResponse({"movies": mock_movies})
+
+    matched_movies = None
+    if selected_movie:
+        for movie in mock_movies:
+            if movie['movie_id'] == int(selected_movie):
+                matched_movies = movie
+                break
+
+    """Debugging: Print matched movie and selected date to console for verification."""
+    print(f"Matched Movie Object: {matched_movies}, Selected Date: {selected_date}")
+
+    """Context dictionary to pass selected movie and date to the template if needed."""
+    context = {
+        'movies': mock_movies,
+        'selected_movie': matched_movies,
+        'selected_date': selected_date,
+    }
+
+    return render(request, 'FirstApp/home.html', context)
 
 # 3. Step 2: Interactive Seat Map (HTMX Snippet)
 def seat_map(request):
