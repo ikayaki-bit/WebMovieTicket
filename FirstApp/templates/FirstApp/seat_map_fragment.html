@@ -1,0 +1,107 @@
+<div class='seat-map' style='margin-top: 20px; max-width: 600px; margin-left: auto; margin-right: auto; padding: 20px; background-color: #f8f9fa; border: 2px solid #dee2e6; border-radius: 8px;'>
+    <h3 style='text-align: center; margin-top: 0;'>Select Your Seat</h3>
+    <p style='text-align: center; color: gray; font-size: 0.9em;'>Click a seat to select.</p>
+    
+    <!-- 満席時の通知メッセージ -->
+    {% if is_sold_out %}
+        <div style="background-color: #f8d7da; color: #721c24; padding: 15px; border-radius: 6px; text-align: center; margin-bottom: 20px; border: 1px solid #f5c6cb;">
+            <h4 style="margin: 0 0 5px 0;">Sold Out</h4>
+            <p style="margin: 0; font-size: 0.95em;">This screening is sold out. No seats are available.</p>
+        </div>
+    {% endif %}
+
+    <!-- スクリーン -->
+    <div style='width: 100%; background-color: #ffffff; color: black; text-align: center; padding: 8px; margin-bottom: 25px; border-radius: 4px; font-weight: bold; letter-spacing: 3px; box-shadow: 0 4px 6px rgba(0,0,0,0.1);'>
+        SCREEN
+    </div>
+
+    <!-- グリッドエリア -->
+    <div class='seat-grid' style='--col-count: {{ cols|length }};'>
+        {% for seat in seats_data %}
+            {% if seat.is_booked %}
+                <!-- 予約済み座席（灰色・クリック不可） -->
+                <button type='button' disabled
+                        style='background-color: #6c757d; color: white; width: 60px; height: 50px; display: flex; align-items: center; justify-content: center; border: 3px solid transparent; border-radius: 0; cursor: not-allowed; opacity: 0.6; font-weight: bold; box-sizing: border-box;'>
+                    {{ seat.number }}
+                </button>
+            {% else %}
+                <!-- 選択可能な座席 -->
+                <button type='button' 
+                        class='seat-btn' 
+                        onclick='selectSeat(this, "{{ seat.id }}", "{{ seat.number }}")' 
+                        style='background-color: #28a745; color: white; width: 60px; height: 50px; display: flex; align-items: center; justify-content: center; border: 3px solid transparent; border-radius: 0; cursor: pointer; font-weight: bold; box-sizing: border-box;'>
+                    {{ seat.number }}
+                </button>
+            {% endif %}
+        {% endfor %}
+    </div>
+
+    <!-- 予約確定フォーム（HTMX対応） -->
+    {% if target_showtime and not is_sold_out %}
+    <form hx-post="{% url 'create-booking' %}" 
+          hx-target="#result-area" 
+          style='margin-top: 25px; border-top: 1px solid #dee2e6; padding-top: 15px; text-align: center;'>
+        {% csrf_token %}
+        <input type="hidden" name="showtime_id" value="{{ target_showtime.id }}">
+        <input type="hidden" name="seat_id" id="selected-seat-id" value="">
+        
+        <p style='margin-bottom: 15px;'>
+            Selected Seat: <span id='selected-seat-display' style='font-weight: bold; color: #28a745; font-size: 1.1em;'>None</span>
+        </p>
+        
+        {% if user.is_authenticated %}
+            <!-- ログイン中の場合は名前入力を省略 -->
+            <p style="margin-bottom: 15px; font-weight: bold; color: #333;">
+                Logged in as: <span style="color: #007bff;">{{ user.username }}</span>
+            </p>
+        {% else %}
+            <!-- 未ログインの場合は名前入力欄を表示 -->
+            <div style="margin-bottom: 15px;">
+                <label for="user_name" style="font-weight: bold; margin-right: 10px;">Your Name:</label>
+                <input type="text" id="user_name" name="user_name" required 
+                       style="padding: 8px 12px; width: 220px; border: 1px solid #ced4da; border-radius: 4px;" 
+                       placeholder="Enter your name">
+            </div>
+        {% endif %}
+
+        <!-- OKボタン（座席選択前は無効化） -->
+        <button type="submit" id="book-btn" disabled 
+                style="padding: 10px 25px; background-color: #007bff; color: white; border: none; border-radius: 4px; font-weight: bold; cursor: not-allowed; opacity: 0.5;">
+            OK
+        </button>
+    </form>
+    {% endif %}
+</div>
+
+<style>
+    .seat-grid {
+        display: grid;
+        grid-template-columns: repeat(var(--col-count), 60px);
+        gap: 10px;
+        justify-content: center;
+    }
+</style>
+
+<script>
+    function selectSeat(button, seatId, seatNumber) {
+        // すべての座席ボタンの枠線を「透明」に戻す
+        document.querySelectorAll('.seat-btn').forEach(btn => {
+            btn.style.border = '3px solid transparent';
+        });
+        
+        // クリックされたボタンの枠線を青色にする
+        button.style.border = '3px solid #007bff';
+        
+        // 画面上の表示および隠しフィールドを更新
+        document.getElementById('selected-seat-display').innerText = seatNumber;
+        document.getElementById('selected-seat-id').value = seatId;
+        
+        // OKボタンを有効化
+        const bookBtn = document.getElementById('book-btn');
+        if (bookBtn) {
+            bookBtn.disabled = false;
+            bookBtn.style.cursor = 'pointer';
+            bookBtn.style.opacity = '1.0';
+        }
+    }
+</script>
