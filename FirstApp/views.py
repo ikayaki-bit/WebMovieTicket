@@ -4,7 +4,15 @@ from django.http import HttpResponse, JsonResponse
 # 1. Main Home Page (Single-page interface)
 def home(request):
     """Render the main single-page interface for the booking system."""
-    return render(request, 'FirstApp/home.html')
+    mock_movies = [
+        {"movie_id": 1, "title": "Inception", "duration": 148},
+        {"movie_id": 2, "title": "Interstellar", "duration": 169},
+        {"movie_id": 3, "title": "The Dark Knight", "duration": 152},
+    ]
+    context = {
+        'movies': mock_movies,
+    }
+    return render(request, 'FirstApp/home.html', context)
 
 # 2. Step 1: Get Movies & Dates (Mock List)
 def movie_list(request):
@@ -26,15 +34,25 @@ def movie_list(request):
                 matched_movies = movie
                 break
 
-    """Debugging: Print matched movie and selected date to console for verification."""
-    print(f"Matched Movie Object: {matched_movies}, Selected Date: {selected_date}")
-
     """Context dictionary to pass selected movie and date to the template if needed."""
     context = {
         'movies': mock_movies,
         'selected_movie': matched_movies,
         'selected_date': selected_date,
     }
+
+    """Return the HTML for the result section"""
+    if request.headers.get('HX-Request'):
+        if matched_movies:
+            html = f"""
+                <h3>Selected Movie Results:</h3>
+                <p>Movie Title: {matched_movies['title']}</p>
+                <p>Duration: {matched_movies['duration']} minutes</p>
+                <p>Date: {selected_date}</p>
+            """
+        else:
+            html = "<p>Please select a movie.</p>"
+        return HttpResponse(html)
 
     return render(request, 'FirstApp/home.html', context)
 
